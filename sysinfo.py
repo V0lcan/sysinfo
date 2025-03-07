@@ -4,19 +4,27 @@ import os, time, datetime
 log_file = ".log.txt"
 info_file = ".info.txt"
 
+# Error handling function - Used to write errors to a log file ####
+def error_handling(error):
+    write_log("Error: " + str(error))
+###################################################################
+
 # Function that gets total, used and free RAM & swap memory #######
 def get_ram_info():
-    info = os.popen('free -m').readlines()
-    ram_info = []
-    for line in info:
-        if line.startswith("Mem:") or line.startswith("Swap:"):
-            parts = line.split()
-            total = float(parts[1]) / 1024
-            used = float(parts[2]) / 1024
-            free = total - used
-            ram_info.append(f"{parts[0]} - Total: {total:.2f}GB   Used: {used:.2f}GB   Free: {free:.2f}GB")
-    
-    return ram_info
+    try:
+        info = os.popen('free -m').readlines()
+        ram_info = []
+        for line in info:
+            if line.startswith("Mem:") or line.startswith("Swap:"):
+                parts = line.split()
+                total = float(parts[1]) / 1024
+                used = float(parts[2]) / 1024
+                free = total - used
+                ram_info.append(f"{parts[0]:<5}    Total: {total:>6.2f}GB   Used: {used:>6.2f}GB   Free: {free:>6.2f}GB")
+        
+        return ram_info
+    except Exception as e:
+        error_handling(e)
 ####################################################################
 
 # Log functions - Used to create and write to a log file ##########
@@ -31,10 +39,12 @@ def write_log(input):
 
 # Info functions - Used to create and write to a info file ########
 def write_info(input):
-    with open(f"{info_file}", "w") as info:
-        info.write(input)
+    try:
+        with open(f"{info_file}", "w") as info:
+            info.write(input)
+    except Exception as e:
+        error_handling(e)
 ###################################################################
-
 
 
 
@@ -44,12 +54,16 @@ def Main():
 
     #write_log("Program started at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
-    while True:
-        sysinfo_ram = f"{str(get_ram_info()[0])}\n{str(get_ram_info()[1])}"
+    try:
+        while True:
+            sysinfo_ram = f"{str(get_ram_info()[0])}\n{str(get_ram_info()[1])}"
 
-        write_info(f"{sysinfo_ram}")
+            write_info(f"{sysinfo_ram}")
 
-        time.sleep(10)
+            time.sleep(10)
+    except Exception as e:
+        error_handling(e)
+
 
     #write_log("Program ended at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
