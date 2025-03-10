@@ -5,7 +5,7 @@ import subprocess
 
 
 # Global variables
-LOG_FILE = ".log.log"
+LOG_FILE = ".main.log"
 INFO_FILE = ".info.txt"
 
 # Error handling function - Used to write errors to a log file ####
