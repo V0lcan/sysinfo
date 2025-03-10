@@ -1,8 +1,12 @@
-import os, time, datetime
+import os
+import time
+import datetime
+import subprocess
+
 
 # Global variables
-log_file = ".log.txt"
-info_file = ".info.txt"
+LOG_FILE = ".log.log"
+INFO_FILE = ".info.txt"
 
 # Error handling function - Used to write errors to a log file ####
 def error_handling(error):
@@ -12,7 +16,8 @@ def error_handling(error):
 # Function that gets total, used and free RAM & swap memory #######
 def get_ram_info():
     try:
-        info = os.popen('free -m').readlines()
+        info = subprocess.check_output(['free', '-m']).decode('utf-8').splitlines()
+
         ram_info = []
         for line in info:
             if line.startswith("Mem:") or line.startswith("Swap:"):
@@ -24,23 +29,23 @@ def get_ram_info():
         
         return ram_info
     except Exception as e:
-        error_handling(e)
+        error_handling(f"Exception occurred: {str(e)}")
 ####################################################################
 
 # Log functions - Used to create and write to a log file ##########
 def create_log():
-    with open(f"{log_file}", "a") as log:
+    with open(LOG_FILE, "a") as log:
         log.write("Log file created at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
 
 def write_log(input):
-    with open(f"{log_file}", "a") as log:
+    with open(LOG_FILE, "a") as log:
         log.write(input + "\n")
 ###################################################################
 
 # Info functions - Used to create and write to a info file ########
 def write_info(input):
     try:
-        with open(f"{info_file}", "w") as info:
+        with open(INFO_FILE, "w") as info:
             info.write(input)
     except Exception as e:
         error_handling(e)
@@ -49,18 +54,22 @@ def write_info(input):
 
 
 def Main():
-    if os.path.isfile(f"{log_file}") == False:
+    if not os.path.isfile(LOG_FILE):
         create_log()
 
     #write_log("Program started at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
     try:
         while True:
-            sysinfo_ram = f"{str(get_ram_info()[0])}\n{str(get_ram_info()[1])}"
+            ram_info = get_ram_info()
+            sysinfo_ram = f"{str(ram_info[0])}\n{str(ram_info[1])}"
 
             write_info(f"{sysinfo_ram}")
 
-            time.sleep(10)
+            subprocess.run(["clear"])
+            subprocess.run(["cat", INFO_FILE])
+
+            time.sleep(.5)
     except Exception as e:
         error_handling(e)
 
