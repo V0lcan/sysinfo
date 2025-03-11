@@ -9,14 +9,14 @@ LOG_FILE = ".main.log"
 INFO_FILE = ".info.txt"
 
 # Error handling function - Used to write errors to a log file ####
-def error_handling(error):
+def log_error(error):
     write_log("Error: " + str(error))
 ###################################################################
 
 # Function that gets total, used and free RAM & swap memory #######
 def get_ram_info():
     try:
-        info = subprocess.check_output(['free', '-m']).decode('utf-8').splitlines()
+        info = subprocess.check_output(['free', '-m'], text=True).splitlines()
 
         ram_info = []
         for line in info:
@@ -25,11 +25,11 @@ def get_ram_info():
                 total = float(parts[1]) / 1024
                 used = float(parts[2]) / 1024
                 free = total - used
-                ram_info.append(f"{parts[0]:<5}    Total: {total:>6.2f}GB   Used: {used:>6.2f}GB   Free: {free:>6.2f}GB")
-        
+                ram_info.append(f"{parts[0]:<5} Total: {total:.2f}GB Used: {used:.2f}GB Free: {free:.2f}GB")
+
         return ram_info
     except Exception as e:
-        error_handling(f"Exception occurred: {str(e)}")
+        log_error(e)
 ####################################################################
 
 # Log functions - Used to create and write to a log file ##########
@@ -37,18 +37,18 @@ def create_log():
     with open(LOG_FILE, "a") as log:
         log.write("Log file created at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
 
-def write_log(input):
+def write_log(message):
     with open(LOG_FILE, "a") as log:
-        log.write(input + "\n")
+        log.write(message + "\n")
 ###################################################################
 
 # Info functions - Used to create and write to a info file ########
-def write_info(input):
+def write_info(info_content):
     try:
         with open(INFO_FILE, "w") as info:
-            info.write(input)
+            info.write(info_content)
     except Exception as e:
-        error_handling(e)
+        log_error(e)
 ###################################################################
 
 
@@ -58,7 +58,12 @@ def Main():
         create_log()
 
     #write_log("Program started at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    
+
+    try:
+        os.system('clear')
+    except Exception as e:
+        log_error(e)
+
     try:
         while True:
             ram_info = get_ram_info()
@@ -66,12 +71,15 @@ def Main():
 
             write_info(f"{sysinfo_ram}")
 
-            subprocess.run(["clear"])
-            subprocess.run(["cat", INFO_FILE])
+            with open(INFO_FILE, "r") as info_file:
+                print(info_file.read())
 
-            time.sleep(.5)
+            # Move cursor to the top of the terminal
+            print("\033[H", end="")
+
+            time.sleep(1)
     except Exception as e:
-        error_handling(e)
+        log_error(e)
 
 
     #write_log("Program ended at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
