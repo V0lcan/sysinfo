@@ -27,6 +27,7 @@ def get_ram_info():
                 if used > total:
                     used = total
                 free = total - used
+
                 ram_info.append(f"{parts[0]:<5} Total: {total:.2f}GB Used: {used:.2f}GB Free: {free:.2f}GB")
 
         return ram_info
