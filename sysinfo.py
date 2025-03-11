@@ -77,7 +77,7 @@ def Main():
             # Move cursor to the top of the terminal
             print("\033[H", end="")
 
-            time.sleep(1)
+            time.sleep(3)
     except Exception as e:
         log_error(e)
 
