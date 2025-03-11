@@ -60,7 +60,7 @@ def Main():
     #write_log("Program started at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     try:
-        os.system('clear')
+        subprocess.call(["clear"])
     except Exception as e:
         log_error(e)
 
