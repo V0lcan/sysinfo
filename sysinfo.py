@@ -24,6 +24,8 @@ def get_ram_info():
                 parts = line.split()
                 total = float(parts[1]) / 1024
                 used = float(parts[2]) / 1024
+                if used > total:
+                    used = total
                 free = total - used
                 ram_info.append(f"{parts[0]:<5} Total: {total:.2f}GB Used: {used:.2f}GB Free: {free:.2f}GB")
 
