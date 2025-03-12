@@ -10,7 +10,7 @@ INFO_FILE = ".info.txt"
 
 # Error handling function - Used to write errors to a log file ####
 def log_error(error):
-    write_log("Error: " + str(error))
+    write_log(f"{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} Error: " + str(error))
 ###################################################################
 
 # Function that gets total, used and free RAM & swap memory #######
@@ -102,7 +102,7 @@ def Main():
     if not os.path.isfile(LOG_FILE):
         create_log()
 
-    #write_log("Program started at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    write_log("Program started at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     try:
         subprocess.call(["clear"])
@@ -129,7 +129,7 @@ def Main():
         log_error(e)
 
 
-    #write_log("Program ended at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    write_log("Program ended at: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 if __name__ == '__main__':
     Main()
