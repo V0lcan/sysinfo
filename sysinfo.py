@@ -69,7 +69,7 @@ def get_cpu_load():
                 line = line.split()
 
                 if len(line[2]) < 2:
-                    cpu_loads.append(f"CPU {line[2]}: {round(100 - float(line[-1]), 2)}%")  # %idle is the last column
+                    cpu_loads.append(f"CPU {line[2]:<2}: {round(100 - float(line[-1]), 2):>5.2f}%")  # %idle is the last column
         
         cpu_loads = " | ".join(cpu_loads)
         return cpu_loads
