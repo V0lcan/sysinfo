@@ -59,7 +59,22 @@ def get_ram_info():
 
 # Function that gets CPU core loads ################################
 def get_cpu_load():
-    pass
+    try:
+        info = subprocess.check_output(['mpstat', '-P', 'ALL', '1', '1'], text=True).split("\n")
+        cpu_loads = []
+        for line in info:
+            if "all" in line or "CPU" in line:
+                continue
+            if line.strip():
+                line = line.split()
+
+                if len(line[2]) < 2:
+                    cpu_loads.append(f"CPU {line[2]}: {round(100 - float(line[-1]), 2)}%")  # %idle is the last column
+        
+        cpu_loads = " | ".join(cpu_loads)
+        return cpu_loads
+    except Exception as e:
+        log_error(e)
 ####################################################################
 
 # Log functions - Used to create and write to a log file ##########
@@ -99,7 +114,9 @@ def Main():
             ram_info = get_ram_info()
             sysinfo_ram = f"{str(ram_info[0])}\n{str(ram_info[1])}"
 
-            write_info(f"{sysinfo_ram}\n")
+            cpu_info = get_cpu_load()
+
+            write_info(f"{sysinfo_ram}\n\n{cpu_info}")
 
             with open(INFO_FILE, "r") as info_file:
                 print(info_file.read())
