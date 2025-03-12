@@ -35,6 +35,33 @@ def get_ram_info():
         log_error(e)
 ####################################################################
 
+# Function that gets CPU core loads ################################
+def get_ram_info():
+    try:
+        info = subprocess.check_output(['free', '-m'], text=True).splitlines()
+
+        ram_info = []
+        for line in info:
+            if line.startswith("Mem:") or line.startswith("Swap:"):
+                parts = line.split()
+                total = float(parts[1]) / 1024
+                used = float(parts[2]) / 1024
+                if used > total:
+                    used = total
+                free = total - used
+                
+                ram_info.append(f"{parts[0]:<5} Total: {total:>6.2f}GB | Used: {used:>6.2f}GB | Free: {free:>6.2f}GB")
+
+        return ram_info
+    except Exception as e:
+        log_error(e)
+####################################################################
+
+# Function that gets CPU core loads ################################
+def get_cpu_load():
+    pass
+####################################################################
+
 # Log functions - Used to create and write to a log file ##########
 def create_log():
     with open(LOG_FILE, "a") as log:
@@ -72,7 +99,7 @@ def Main():
             ram_info = get_ram_info()
             sysinfo_ram = f"{str(ram_info[0])}\n{str(ram_info[1])}"
 
-            write_info(f"{sysinfo_ram}")
+            write_info(f"{sysinfo_ram}\n")
 
             with open(INFO_FILE, "r") as info_file:
                 print(info_file.read())
