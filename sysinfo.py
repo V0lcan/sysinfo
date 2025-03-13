@@ -3,6 +3,11 @@ import time
 import datetime
 import subprocess
 
+# TODO
+# - Add a function that gets the disk usage
+# - Add a function that gets the network usage
+# - Add a function that gets the CPU temperature
+# - Add a function that gets the system fans speed
 
 # Global variables
 LOG_FILE = ".main.log"
@@ -61,6 +66,15 @@ def get_cpu_load():
         log_error(e)
 ####################################################################
 
+# Function that gets uptime ########################################
+def get_uptime():
+    try:
+        info = subprocess.check_output(['uptime', '-p'], text=True).strip() # Get the output of uptime -p
+        info = info.replace("up ", "Uptime: ")
+        return info
+    except Exception as e:
+        log_error(e)
+
 # Log functions - Used to create and write to a log file ##########
 def create_log():
     with open(LOG_FILE, "a") as log:
@@ -96,16 +110,19 @@ def Main():
 
     try:
         while True:
+            
+            
+            uptime = get_uptime()
 
-            # Gget the RAM info and format it for the info file.
+            # Gget the RAM info
             ram_info = get_ram_info()
             sysinfo_ram = f"{str(ram_info[0])}\n{str(ram_info[1])}"
             
             # Get the CPU info which is already in a formated state.
             cpu_info = get_cpu_load()
 
-            # Write the RAM and CPU info to the info file
-            write_info(f"{sysinfo_ram}\n\n{cpu_info}")
+            # Write the info to the info file
+            write_info(f"{uptime}\n\n{sysinfo_ram}\n\n{cpu_info}")
 
         
             with open(INFO_FILE, "r") as info_file:
