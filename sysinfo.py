@@ -74,6 +74,23 @@ def get_uptime():
         return info
     except Exception as e:
         log_error(e)
+####################################################################
+
+# Function that gets disk usage ####################################
+# NOTE: I don't know wether this will give the total of all disks or just the root disk. I'll look into it later.
+def get_digk_usage():
+    info = subprocess.check_output(["df", "-h", "--total" ], text=True).splitlines() # Get the output of df -h --total
+
+    # Go trough the output and get the line that starts with "total"
+    for line in info:
+        if line.startswith("total"):
+
+            # Split the line into a list and format the collected info into a readable string
+            info = line.split()
+            info = f"Disk usage - Total: {info[1]}  |  Used: {info[2]}  |  Free: {info[3]}"
+
+    return info
+####################################################################
 
 # Log functions - Used to create and write to a log file ##########
 def create_log():
@@ -111,7 +128,6 @@ def Main():
     try:
         while True:
             
-            
             uptime = get_uptime()
 
             # Gget the RAM info
@@ -122,7 +138,7 @@ def Main():
             cpu_info = get_cpu_load()
 
             # Write the info to the info file
-            write_info(f"{uptime}\n\n{sysinfo_ram}\n\n{cpu_info}")
+            write_info(f"{uptime}\n\n{sysinfo_ram}\n\n{cpu_info}\n\n{get_digk_usage()}")
 
         
             with open(INFO_FILE, "r") as info_file:
