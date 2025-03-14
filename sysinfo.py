@@ -4,10 +4,11 @@ import datetime
 import subprocess
 
 # TODO
-# - Add a function that gets the disk usage
+# - Add a function that gets the disk usage of each disk. NOTE: The one I have now only gets the root disk.
 # - Add a function that gets the network usage
 # - Add a function that gets the CPU temperature
 # - Add a function that gets the system fans speed
+# - IDEA: Add custom motd that reads a random message from a file every day
 
 # Global variables
 LOG_FILE = ".main.log"
@@ -58,6 +59,7 @@ def get_cpu_load():
                 line = line.split()
 
                 if len(line[2]) < 2:
+                    line[2] = int(line[2]) + 1
                     cpu_loads.append(f"CPU {line[2]:<2}: {round(100 - float(line[-1]), 2):>5.2f}%")  # %idle is the last column
         
         cpu_loads = " | ".join(cpu_loads)
