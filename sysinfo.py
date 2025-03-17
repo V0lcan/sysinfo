@@ -5,7 +5,6 @@ import subprocess
 
 # TODO
 # - Add a function that gets the disk usage of each disk. NOTE: The one I have now only gets the root disk.
-# - Add a function that gets the network usage
 # - Add a function that gets the CPU temperature
 # - Add a function that gets the system fans speed
 # - IDEA: Add custom motd that reads a random message from a file every day
@@ -94,6 +93,42 @@ def get_digk_usage():
     return info
 ####################################################################
 
+# Function that gets network usage ################################
+def get_bandwidth(interval=1):
+    def get_bytes():
+        with open('/proc/net/dev', 'r') as f:
+            data = f.readlines()
+        stats = {}
+        for line in data[2:]:
+            parts = line.split()
+            interface = parts[0].strip(':')
+            stats[interface] = {
+                'rx': int(parts[1]),
+                'tx': int(parts[9])
+            }
+        return stats
+
+    stats1 = get_bytes()
+    time.sleep(interval)
+    stats2 = get_bytes()
+
+    network_usage = {}
+    for interface in stats1:
+        if interface in stats2:
+            rx_rate = (stats2[interface]['rx'] - stats1[interface]['rx']) / interval / 1024
+            tx_rate = (stats2[interface]['tx'] - stats1[interface]['tx']) / interval / 1024
+            network_usage[interface] = {
+                'download_kbps': rx_rate,
+                'upload_kbps': tx_rate
+            }
+
+    network_info = ""
+    for interface, data in network_usage.items():
+        network_info += f"{interface}:  ↓ {data['download_kbps']:.2f} Kbps - ↑ {data['upload_kbps']:.2f} Kbps  | "
+
+    return network_info
+####################################################################
+
 # Log functions - Used to create and write to a log file ##########
 def create_log():
     with open(LOG_FILE, "a") as log:
@@ -129,7 +164,8 @@ def Main():
 
     try:
         while True:
-            
+            divider = "__________________________________________________________________________________________________________________________________________________________"
+
             uptime = get_uptime()
 
             # Gget the RAM info
@@ -139,8 +175,10 @@ def Main():
             # Get the CPU info which is already in a formated state.
             cpu_info = get_cpu_load()
 
+            network_info = get_bandwidth()
+
             # Write the info to the info file
-            write_info(f"{uptime}\n\n{sysinfo_ram}\n\n{cpu_info}\n\n{get_digk_usage()}")
+            write_info(f"{get_uptime()}\n{divider}\n\n{sysinfo_ram}\n{divider}\n\n{get_cpu_load()}\n{divider}\n\n{get_digk_usage()}\n{divider}\n\n{get_bandwidth()}\n{divider}\n")
 
         
             with open(INFO_FILE, "r") as info_file:
@@ -150,7 +188,7 @@ def Main():
             print("\033[H", end="")
 
             # Wait 3 seconds before getting the info again. Helps reduce system resource usage.
-            time.sleep(3)
+            time.sleep(1)
     except Exception as e:
         log_error(e)
 
