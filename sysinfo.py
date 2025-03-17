@@ -74,9 +74,16 @@ def get_cpu_load():
 
                 if len(line[2]) < 2:
                     line[2] = int(line[2]) + 1
-                    cpu_loads.append(f"CPU {line[2]:<2}: {round(100 - float(line[-1]), 2):>5.2f}%")  # %idle is the last column
-        
+
+                    if round(100 - float(line[-1]), 2) > 90:
+                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'red')}")
+                    elif round(100 - float(line[-1]), 2) > 70:
+                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'yellow')}")
+                    else:
+                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'green')}")
+
         cpu_loads = " | ".join(cpu_loads)
+        
         return cpu_loads
     except Exception as e:
         log_error(e)
@@ -199,7 +206,7 @@ def Main():
 
             # Gget the RAM info
             ram_info = get_ram_info()
-            sysinfo_ram = f"{str(ram_info[0])}\n{str(ram_info[1])}"
+            sysinfo_ram = f"{str(ram_info[0])}\n {str(ram_info[1])}"
             
             # Get the CPU info which is already in a formated state.
             cpu_info = get_cpu_load()
@@ -207,7 +214,7 @@ def Main():
             network_info = get_bandwidth()
 
             # Write the info to the info file
-            write_info(f"{get_uptime()}\n{divider}\n\n{sysinfo_ram}\n{divider}\n\n{get_cpu_load()}\n{divider}\n\n{get_digk_usage()}\n{divider}\n\n{get_bandwidth()}\n{divider}\n")
+            write_info(f" {get_uptime()}\n{divider}\n\n {sysinfo_ram}\n{divider}\n\n {get_cpu_load()}\n{divider}\n\n {get_digk_usage()}\n{divider}\n\n {get_bandwidth()}\n{divider}\n")
 
         
             with open(INFO_FILE, "r") as info_file:
