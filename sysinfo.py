@@ -53,7 +53,7 @@ def get_ram_info():
                 # Add the info to the ram_info list
                 ram_info.append(f"{parts[0]:<5} Total: {total:>6.2f}GB | Used: {used_colored}GB | Free: {free_colored}GB")
 
-        return ram_info + "         " # The extra spaces helps clear any text that is left over from the previous output
+        return ram_info
     except Exception as e:
         log_error(e)
 ####################################################################
