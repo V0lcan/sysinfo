@@ -2,6 +2,7 @@ import os
 import time
 import datetime
 import subprocess
+import termcolor
 
 # TODO
 # - Add a function that gets the disk usage of each disk. NOTE: The one I have now only gets the root disk.
@@ -35,8 +36,22 @@ def get_ram_info():
                     used = total
                 free = total - used
                 
+                if used > total * 0.9:
+                    used_colored = termcolor.colored(f"{used:>6.2f}", "red")
+                elif used > total * 0.7:
+                    used_colored = termcolor.colored(f"{used:>6.2f}", "yellow")
+                else:
+                    used_colored = termcolor.colored(f"{used:>6.2f}", "green")
+
+                if free < total * 0.1:
+                    free_colored = termcolor.colored(f"{free:>6.2f}", "red")
+                elif free < total * 0.3:
+                    free_colored = termcolor.colored(f"{free:>6.2f}", "yellow")
+                else:
+                    free_colored = termcolor.colored(f"{free:>6.2f}", "green")
+
                 # Add the info to the ram_info list
-                ram_info.append(f"{parts[0]:<5} Total: {total:>6.2f}GB | Used: {used:>6.2f}GB | Free: {free:>6.2f}GB")
+                ram_info.append(f"{parts[0]:<5} Total: {total:>6.2f}GB | Used: {used_colored}GB | Free: {free_colored}GB")
 
         return ram_info
     except Exception as e:
@@ -80,17 +95,31 @@ def get_uptime():
 # Function that gets disk usage ####################################
 # NOTE: I don't know wether this will give the total of all disks or just the root disk. I'll look into it later.
 def get_digk_usage():
-    info = subprocess.check_output(["df", "-h", "--total" ], text=True).splitlines() # Get the output of df -h --total
+    try:
+        info = subprocess.check_output(["df", "-h", "--total" ], text=True).splitlines() # Get the output of df -h --total
+        status = ""
+        # Go trough the output and get the line that starts with "total"
+        for line in info:
+            if line.startswith("total"):
+                
+                # Split the line into a list and format the collected info into a readable string
+                info = line.split()
+                
+                if int(info[2][:-1]) > int(info[1][:-1]) * 0.9:
+                    info[2] = termcolor.colored(f"{info[2]}", "red")
+                    info[3] = termcolor.colored(f"{info[3]}", "red")
+                elif int(info[2][:-1]) > int(info[1][:-1]) * 0.7:
+                    info[2] = termcolor.colored(f"{info[2]}", "yellow")
+                    info[3] = termcolor.colored(f"{info[3]}", "yellow")
+                elif int(info[2][:-1]) < int(info[1][:-1]) * 0.7:
+                    info[2] = termcolor.colored(f"{info[2]}", "green")
+                    info[3] = termcolor.colored(f"{info[3]}", "green")
 
-    # Go trough the output and get the line that starts with "total"
-    for line in info:
-        if line.startswith("total"):
+                info = f"Disk usage - Total: {info[1]}  |  Used: {info[2]}  |  Free: {info[3]}  {status}"
 
-            # Split the line into a list and format the collected info into a readable string
-            info = line.split()
-            info = f"Disk usage - Total: {info[1]}  |  Used: {info[2]}  |  Free: {info[3]}"
-
-    return info
+        return info
+    except Exception as e:
+        log_error(e)
 ####################################################################
 
 # Function that gets network usage ################################
@@ -164,7 +193,7 @@ def Main():
 
     try:
         while True:
-            divider = "__________________________________________________________________________________________________________________________________________________________"
+            divider = "_" * 135
 
             uptime = get_uptime()
 
