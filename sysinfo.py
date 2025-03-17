@@ -5,7 +5,7 @@ import subprocess
 import termcolor
 
 # TODO
-# - Add a function that gets the disk usage of each disk. NOTE: The one I have now only gets the root disk.
+# - Add a function that gets the disk usage of each disk. NOTE: The one I have now only gets the root disk (I think).
 # - Add a function that gets the CPU temperature
 # - Add a function that gets the system fans speed
 # - IDEA: Add custom motd that reads a random message from a file every day
@@ -53,7 +53,7 @@ def get_ram_info():
                 # Add the info to the ram_info list
                 ram_info.append(f"{parts[0]:<5} Total: {total:>6.2f}GB | Used: {used_colored}GB | Free: {free_colored}GB")
 
-        return ram_info
+        return ram_info + "         " # The extra spaces helps clear any text that is left over from the previous output
     except Exception as e:
         log_error(e)
 ####################################################################
@@ -76,15 +76,15 @@ def get_cpu_load():
                     line[2] = int(line[2]) + 1
 
                     if round(100 - float(line[-1]), 2) > 90:
-                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'red')}")
+                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'red')}%")
                     elif round(100 - float(line[-1]), 2) > 70:
-                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'yellow')}")
+                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'yellow')}%")
                     else:
-                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'green')}")
+                        cpu_loads.append(f"CPU {line[2]:<2}: {termcolor.colored(round(100 - float(line[-1]), 2), 'green')}%")
 
         cpu_loads = " | ".join(cpu_loads)
         
-        return cpu_loads
+        return cpu_loads + "         " # The extra spaces helps clear any text that is left over from the previous output
     except Exception as e:
         log_error(e)
 ####################################################################
@@ -94,7 +94,7 @@ def get_uptime():
     try:
         info = subprocess.check_output(['uptime', '-p'], text=True).strip() # Get the output of uptime -p
         info = info.replace("up ", "Uptime: ")
-        return info
+        return info + "         " # The extra spaces helps clear any text that is left over from the previous output
     except Exception as e:
         log_error(e)
 ####################################################################
@@ -124,7 +124,7 @@ def get_digk_usage():
 
                 info = f"Disk usage - Total: {info[1]}  |  Used: {info[2]}  |  Free: {info[3]}  {status}"
 
-        return info
+        return info + "         " # The extra spaces helps clear any text that is left over from the previous output
     except Exception as e:
         log_error(e)
 ####################################################################
@@ -162,7 +162,7 @@ def get_bandwidth(interval=1):
     for interface, data in network_usage.items():
         network_info += f"{interface}:  ↓ {data['download_kbps']:.2f} Kbps - ↑ {data['upload_kbps']:.2f} Kbps  | "
 
-    return network_info
+    return network_info + "         " # The extra spaces helps clear any text that is left over from the previous output
 ####################################################################
 
 # Log functions - Used to create and write to a log file ##########
@@ -200,7 +200,8 @@ def Main():
 
     try:
         while True:
-            divider = "_" * 135
+
+            divider = "_" * 130
 
             uptime = get_uptime()
 
